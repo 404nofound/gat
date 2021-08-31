@@ -1,0 +1,5 @@
+.
+├── data    		# Cora数据集
+├── models    		# GAT模型定义 (gat.py)
+├── pretrained   		# 预训练的模型
+└── utils    		#  工具定义

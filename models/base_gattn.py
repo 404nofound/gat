@@ -1,12 +1,17 @@
 import tensorflow as tf
 
 class BaseGAttN:
+
+    # 定义损失函数
     def loss(logits, labels, nb_classes, class_weights):
         sample_wts = tf.reduce_sum(tf.multiply(tf.one_hot(labels, nb_classes), class_weights), axis=-1)
+
+        # 交叉熵损失函数
         xentropy = tf.multiply(tf.nn.sparse_softmax_cross_entropy_with_logits(
                 labels=labels, logits=logits), sample_wts)
         return tf.reduce_mean(xentropy, name='xentropy_mean')
 
+    # 定义训练函数。training最小化损失函数和L2 loss
     def training(loss, lr, l2_coef):
         # weight decay
         vars = tf.trainable_variables()

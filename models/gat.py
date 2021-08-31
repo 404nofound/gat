@@ -8,11 +8,15 @@ class GAT(BaseGAttN):
     def inference(inputs, nb_classes, nb_nodes, training, attn_drop, ffd_drop,
             bias_mat, hid_units, n_heads, activation=tf.nn.elu, residual=False):
         attns = []
+
+        #GAT中预设了8层attention head
         for _ in range(n_heads[0]):
             attns.append(layers.attn_head(inputs, bias_mat=bias_mat,
                 out_sz=hid_units[0], activation=activation,
                 in_drop=ffd_drop, coef_drop=attn_drop, residual=False))
         h_1 = tf.concat(attns, axis=-1)
+
+        #hid_units表示每一层attention head中的隐藏单元个数
         for i in range(1, len(hid_units)):
             h_old = h_1
             attns = []
@@ -22,6 +26,8 @@ class GAT(BaseGAttN):
                     in_drop=ffd_drop, coef_drop=attn_drop, residual=residual))
             h_1 = tf.concat(attns, axis=-1)
         out = []
+
+        #加上输出层
         for i in range(n_heads[-1]):
             out.append(layers.attn_head(h_1, bias_mat=bias_mat,
                 out_sz=nb_classes, activation=lambda x: x,

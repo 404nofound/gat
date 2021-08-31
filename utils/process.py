@@ -12,17 +12,21 @@ import sys
  Expected shape: [graph, nodes, nodes]
 """
 def adj_to_bias(adj, sizes, nhood=1):
-    nb_graphs = adj.shape[0]
-    mt = np.empty(adj.shape)
-    for g in range(nb_graphs):
-        mt[g] = np.eye(adj.shape[1])
-        for _ in range(nhood):
-            mt[g] = np.matmul(mt[g], (adj[g] + np.eye(adj.shape[1])))
-        for i in range(sizes[g]):
+    nb_graphs = adj.shape[0] # nb_graphs: 1
+
+    # print('adj_to_bias.adj:', adj.shape) # adj: (1, 2708, 2708)
+    # print('sizes:', sizes) # sizes = nb_nodes : 2708
+    
+    mt = np.empty(adj.shape) # np.empty返回维度为(1, 2708, 2708)的随机数组
+    for g in range(nb_graphs): # nb_graphs: 1，此处 g=0 符合循环条件
+        mt[g] = np.eye(adj.shape[1]) # mt[0]: (2708,2708) 对角线为1的矩阵
+        for _ in range(nhood): # nhood: 1，此处循环变量=0符合循环条件
+            mt[g] = np.matmul(mt[g], (adj[g] + np.eye(adj.shape[1]))) # 由于mt[g]为对角阵，故结果仍为(adj[g] + np.eye(adj.shape[1]))
+        for i in range(sizes[g]): # sizes[g]: 2708
             for j in range(sizes[g]):
                 if mt[g][i][j] > 0.0:
-                    mt[g][i][j] = 1.0
-    return -1e9 * (1.0 - mt)
+                    mt[g][i][j] = 1.0 # 将大于的0的元素设置为1.0
+    return -1e9 * (1.0 - mt) # mt中值为1的位置返回0，值为0的位置返回负数-1e9
 
 
 ###############################################
@@ -90,8 +94,8 @@ def load_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
     y_val[val_mask, :] = labels[val_mask, :]
     y_test[test_mask, :] = labels[test_mask, :]
 
-    print(adj.shape)
-    print(features.shape)
+    print(adj.shape) # (2708, 2708)
+    print(features.shape) #(2708, 1433)
 
     return adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask
 
